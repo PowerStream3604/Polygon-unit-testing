@@ -1,64 +1,74 @@
 # Polygon Smart Contract unit testing with truffle
 
-## Introduction
-In this tutorial, you will learn how to deploy & unit test smart contracts in solidity using truffle. Before diving into unit testing we will implement a Smart-Contract for testing. Grab a cup of tea and review the Smart-Contract and unit test them!
+# Introduction
+In this tutorial, you will learn how to deploy & unit test smart contracts in solidity using Truffle. Before diving into unit testing we will implement a smart contract for testing. Grab a cup of tea, review the Smart-Contract and unit test them!
 
-## Prerequisites
-This tutorial assumes that you have understanding of solidity, truffle, and blockchain.
+# Prerequisites
+This tutorial assumes that you have a basic understanding of Solidity, Truffle, and blockchains.
 
-## Requirements
+# Requirements
 - [Truffle](https://www.trufflesuite.com/)
-- [Solidity](https://docs.soliditylang.org/en/v0.8.9/)
+- The [Solidity](https://docs.soliditylang.org/en/v0.8.9/) compiler (this is installed automatically by Truffle)
+- [Metamask](https://metamask.io/)
 
-## Getting Started
+# Deep Dive into unit testing on polygon
 
-### What is unit testing?
-Unit testing is a way of **testing a unit** - the smallest piece of code that can be logically isolated in a system. These units are mostly functions, subroutine, methods or property.
+## Github Repository
+The complete code used in this tutorial is available [on Github](https://github.com/PowerStream3604/Polygon-unit-testing)
 
-### Introduction about the Smart Contract we'll implement.
-Before actually testing the Smart Contracts, lets first implement a Smart Contract to test.
+**What is unit testing?**
+Unit testing is a way of **testing a unit** - the smallest piece of code that can be logically isolated in a system. These units are mostly functions, subroutine, methods or properties.
 
-The smart contract we'll implement is a Smart Contract that represents a **Corportion**. Similar to how corporations behave, the Smart Contract have a **role** of 
-**Owners :** shareholders of the company who have limited access.
-**Master :** the president of the company with full access.
-**Admins :** both **Owners** and **Master** together as a group.
+## Introduction about the Smart Contract we'll implement.
+Before we can test a smart contract, we will need to implement one.
 
-#### Features :
+The smart contract we'll implement is a Smart Contract that represents a **Corportion**. Similar to how corporations operate, our smart contract assign **roles:**
+**Owners :** Shareholders of the company who have limited access.
+**Master :** The president/CEO of the company with full access.
+**Admins :** Both **Owners** and **Master** together as a group.
+
+## Features :
 1. **Master** has the right to **add** owner with **addOwner()** and **remove** owner with **removeOwner()**.
-2. **Admins**(owner & master) have the right to transfer their share to anyone using the **giveShare()** function.
-3. **Admins**(owner & master) have the right to transfer their share to one of the owners(not master) using the **addShare()** function.
+2. **Admins** (owner & master) have the right to transfer their share to anyone using the **giveShare()** function.
+3. **Admins** (owner & master) have the right to transfer their share to one of the owners(not master) using the **addShare()** function.
 4. **checkIfOwner()** returns whether the given address is owner or not.
-5. **getMaster()** returns the address of the **master**
-6. **getOwners()** returns the list of **owner** addresses
-7. **Users** who are not in the boundary of **admins** cannot transfer their share but can just **receive**.
+5. **getMaster()** returns the address of the **master**.
+6. **getOwners()** returns the list of **owner** addresses.
+7. **Users** who are not in the boundary of **Admins** cannot transfer their share but can still **receive**.
 
 
-#### Events :
+## Events :
 1. **MasterSetup** is emitted when **Master** is set
+
 ```solidity
 event MasterSetup(address indexed master);
 ```
 
 2. **OwnerAddition** is emitted when **Owner** is added by **Master**
+
 ```solidity
 event OwnerAddition(address indexed owner);
 ```
 
 3. **OwnerRemoval** is emitted when **Owner** is removed by **Master**
+
 ```solidity
 event OwnerRemoval(address indexed owner);
 ```
 
 4. **Transfer** is emitted when share of admins gets transfer by either of these functions **addShare()**, **giveShare()**
+
 ```solidity
 event Transfer(address indexed receiver, uint256 amount);
 ```
 
-### Deep Dive into programming Smart Contracts
+# Unit testing smart contracts with Truffle
+
+## Defining the smart contract
 
 *Notes: We name this smart Contract as **Company** and use solidity version **0.8.7***
 
-Before defining the events and functions, let's first define variables to be used in the Smart Contract.
+Before defining the events and functions, let's first define variables to be used in the smart contract.
 
 ```solidity
 contract Company {
@@ -224,6 +234,7 @@ function addShare(address receiver, uint256 _share)
 ```
 
 Here is the full **implementation**.
+
 ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
@@ -374,45 +385,36 @@ Let's then go to unit test the above contract with Truffle.
 As I mentioned above, unit testing is testing the **smallest** unit which can be functions, subroutines, methods, etc.
 Truffle provides a convinient library to test smart contracts, by using **truffle-assert** library, we'll check if all scenarios stand by our expectation.
 
-#### Downloading Truffle
+## Initialize truffle project
 
-[Truffle](https://www.trufflesuite.com/)
-
-Write the command below to install truffle.
-
-```bash
-$ cd polygon_unitTest
-$ npm install truffle
+```text
+truffle init
 ```
 
-#### Initialize truffle project
-
-```bash
-$ truffle init
-```
 Then, you'll see a project directory like this.
 
 ![project overview](https://i.ibb.co/19Xnw0X/Screen-Shot-2021-10-22-at-9-52-29-AM.png)
 
-#### Paste your smart contract into the contracts folder
+## Paste your smart contract into the contracts folder
 
-Create Company.sol file to paste in the smart contract.
+Create Company.sol file under `/contracts`
 
-```bash
-$ touch Company.sol
+```text
+touch Company.sol
 ```
 
 **Then**, paste the smart contract.
 
-#### Configure the network settings
+## Configure the network settings
 
-```bash
-$ vi truffle-config.js
+**Edit** the configuration file:
+```text
+truffle-config.js
 ```
 
 Inside the **networks** object paste the below network configuration.
 
-```bash
+```javascript
 mumbai: {
       provider: () => new HDWalletProvider(["<Private Key 1>", "<Private Key 2>", "<Private Key 3>"],
       "https://polygon-mumbai.infura.io/v3/[PROJECT-ID]"),
@@ -424,27 +426,32 @@ mumbai: {
 }
 ```
 
-the above configuration sets the provider url to connect truffle with the node of **mumbai chain**, and provides private keys to **sign** and pay for **gas fee** on **mumbai**.
+the above configuration sets the provider url to connect truffle with the node of **Mumbai testnet**, and provides private keys to **sign** and pay for **gas fee** on **Mumbai**.
 
-*NOTES : The private key of the accounts should be funded with **MATIC** on Mumbai.*
+We need **3 distinct private keys** for this test. You can refer to this manual to export private key from [Metamask](https://metamask.zendesk.com/hc/en-us/articles/360015289632-How-to-Export-an-Account-Private-Key).
 
-#### Create company.js file in test folder
+For creating Infura projects, please refer this [Infura manual](https://blog.infura.io/getting-started-with-infura-28e41844cc89/).
 
-In order to create test in truffle, create a test file under the **test** folder.
+*NOTES : The accounts should be funded with **MATIC** on Mumbai. Use the [Polygon faucet](https://faucet.polygon.technology/)*
 
-```bash
-$ cd test
-$ touch company.js
+## Create company.js file in test folder
+
+In order to create test in truffle, create a test file under the `test` folder.
+
+```text
+cd test
+touch company.js
 ```
 
-#### Create deployment file to deploy Company Contract
+## Create deployment file to deploy Company Contract
 
-```bash
-$ cd migrations
-$ touch 2_deploy_contract.js
+```text
+cd migrations
+touch 2_deploy_contract.js
 ```
 
-To deploy contract in the connected network. Add the following line.
+To deploy a contract, we will use a migration script (migration is Truffle's way of saying deployment). 
+Add the following code to `2_deploy_contract.js`:
 
 ```javascript
 const Company = artifacts.require("Company");
@@ -454,7 +461,7 @@ module.exports = function (deployer, networks, accounts) {
 };
 ```
 
-#### Before unit testing smart contract
+## Before unit testing smart contract
 We'll use the javascript library of truffle to test the functions.
 
 Before going in, we'll import the contract we'll test and the truffle library for testing.
@@ -471,9 +478,11 @@ const user1 = accounts[0];
 const user2 = accounts[1];
 const user3 = accounts[2];
 ```
-#### Deep dive into unit testing
+
+## Writing unit tests
 
 1. Test if the Master address is set appropariately by the constructor.
+
 ```javascript
 it("1. should be able to set the right master", async () => {
     // Get deployed contract
@@ -484,11 +493,12 @@ it("1. should be able to set the right master", async () => {
 ```
 
 2. Check if only master is able to add owner
+
 ```javascript
 it("2. only master should be able to add owner", async () => {
     // Get deployed contract
     const company = await Company.deployed();
-    // Check if the user2(is not master) get reverted when attempting to add owner
+    // Check if the user2 (is not master) gets reverted when attempting to add owner
     await truffleAssert.reverts(
         company.addOwner(user1, {from: user2}),
     );
@@ -496,11 +506,12 @@ it("2. only master should be able to add owner", async () => {
 ```
 
 3. Check if Master is able to add owner.
+
 ```javascript
 it("3. master should be able to add owner", async() => {
     // Get deployed contract
     const company = await Company.deployed();
-    // call addOwner(); {from: accounts[0]} is added as default(who is master)
+    // call addOwner(); {from: accounts[0]} is added as default (who is master)
     const tx = await company.addOwner(user1);
     // Check if OwnerAddition is getting emitted
     truffleAssert.eventEmitted(tx, "OwnerAddition", (ev) => {
@@ -512,6 +523,7 @@ it("3. master should be able to add owner", async() => {
 ```
 
 4. Check if an address is an owner
+
 ```javascript
 it("4. should be able to check owner", async () => {
     const company = await Company.deployed();
@@ -523,6 +535,7 @@ it("4. should be able to check owner", async () => {
 ```
 
 5. Check if master is the only account to remove owner
+
 ```javascript
 it("5. only master should be able to remove owners", async () => {
     const company = await Company.deployed();
@@ -534,6 +547,7 @@ it("5. only master should be able to remove owners", async () => {
 ```
 
 6. Check if Master is able to add owner
+
 ```javascript
 it("6. master should be able to remove owners", async () => {
     const company = await Company.deployed();
@@ -549,6 +563,7 @@ it("6. master should be able to remove owners", async () => {
 ```
 
 7. Check if Master is able to send his share to owners
+
 ```javascript
 it("7. master should be able to send his share to owners", async() => {
     const company = await Company.deployed();
@@ -573,7 +588,7 @@ it("7. master should be able to send his share to owners", async() => {
 });
 ```
 
-8. Check if it's not possible to user ``addShare()`` to transfer share to ordinary users
+8. Check if it's not possible to user `addShare()` to transfer share to ordinary users
 
 ```javascript
 it("8. should not be able to use addShare() to transfer share to non-admins(normal-users)", async() => {
@@ -585,7 +600,7 @@ it("8. should not be able to use addShare() to transfer share to non-admins(norm
 });
 ```
 
-9. Check if it's possible to use ``giveShare()`` to transfer share to ordinary users
+9. Check if it's possible to use `giveShare()` to transfer share to ordinary users
 
 ```javascript
 it("9. should be able to use giveShare() to transfer share to anyone", async () => {
@@ -600,113 +615,117 @@ it("9. should be able to use giveShare() to transfer share to anyone", async () 
 });
 ```
 
-#### The whole test code
+## The whole test code
+
 ```javascript
 const Company = artifacts.require("Company");
-const truffleAssert = require('truffle-assertions');
+const truffleAssert = require("truffle-assertions");
 contract("Company", (accounts) => {
-    const user1 = accounts[0];
-    const user2 = accounts[1];
-    const user3 = accounts[2];
-    console.log(accounts);
-    it("1. should be able to set the right master", async () => {
-        const company = await Company.deployed();
-        assert.deepEqual(await company.getMaster(), user1);
+  const user1 = accounts[0];
+  const user2 = accounts[1];
+  const user3 = accounts[2];
+  console.log(accounts);
+
+  it("1. should be able to set the right master", async () => {
+    const company = await Company.deployed();
+    assert.deepEqual(await company.getMaster(), user1);
+  });
+
+  it("2. only master should be able to add owner", async () => {
+    const company = await Company.deployed();
+    await truffleAssert.reverts(company.addOwner(user1, { from: user2 }));
+  });
+
+  it("3. master should be able to add owner", async () => {
+    const company = await Company.deployed();
+    const tx = await company.addOwner(user1);
+    truffleAssert.eventEmitted(tx, "OwnerAddition", (ev) => {
+      return ev.owner == user1;
     });
-    it("2. only master should be able to add owner", async () => {
-        const company = await Company.deployed();
-        await truffleAssert.reverts(
-            company.addOwner(user1, {from: user2}),
-        );
+
+    assert.deepEqual(await company.getOwners(), [user1]);
+  });
+
+  it("4. should be able to check owner", async () => {
+    const company = await Company.deployed();
+    await company.addOwner(user1);
+
+    assert.equal(await company.checkIfOwner(user1), true);
+  });
+
+  it("5. only master should be able to remove owners", async () => {
+    const company = await Company.deployed();
+
+    await truffleAssert.reverts(company.removeOwner(user1, { from: user2 }));
+  });
+
+  it("6. master should be able to remove owners", async () => {
+    const company = await Company.deployed();
+
+    const tx = await company.removeOwner(user1);
+    truffleAssert.eventEmitted(tx, "OwnerRemoval", (ev) => {
+      return ev.owner == user1;
     });
-    it("3. master should be able to add owner", async() => {
-        const company = await Company.deployed();
-        const tx = await company.addOwner(user1);
-        truffleAssert.eventEmitted(tx, "OwnerAddition", (ev) => {
-            return ev.owner == user1;
-        })
+    assert.deepEqual(await company.getOwners(), []);
+  });
 
-        assert.deepEqual(await company.getOwners(), [user1]);
+  it("7. master should be able to send his share to owners", async () => {
+    const company = await Company.deployed();
+
+    await company.addOwner(user2);
+
+    assert.equal(await company.getShare(user2), 5000000);
+
+    const tx1 = await company.addShare(user2, 1000);
+    truffleAssert.eventEmitted(tx1, "Transfer", (ev) => {
+      return ev.receiver == user2 && ev.amount == 1000;
     });
-    it("4. should be able to check owner", async () => {
-        const company = await Company.deployed();
-        await company.addOwner(user1);
-        
-        assert.equal(await company.checkIfOwner(user1), true);
+
+    const user2Share = await company.getShare(user2);
+
+    assert.equal(user2Share.toString(), 5001000);
+  });
+
+  it("8. should not be able to use addShare() to transfer share to non-admins(normal-users)", async () => {
+    const company = await Company.deployed();
+
+    await truffleAssert.reverts(company.addShare(user3, 1000));
+  });
+
+  it("9. should be able to use giveShare() to transfer share to anyone", async () => {
+    const company = await Company.deployed();
+
+    const tx = await company.giveShare(user3, 1500);
+    truffleAssert.eventEmitted(tx, "Transfer", (ev) => {
+      return ev.receiver == user3 && ev.amount == 1500;
     });
-    it("5. only master should be able to remove owners", async () => {
-        const company = await Company.deployed();
 
-        await truffleAssert.reverts(
-            company.removeOwner(user1, {from: user2}),
-            //"Only Master has the right to call"
-        );
-    });
-    it("6. master should be able to remove owners", async () => {
-        const company = await Company.deployed();
-
-        const tx = await company.removeOwner(user1);
-        truffleAssert.eventEmitted(tx, "OwnerRemoval", (ev) => {
-            return ev.owner == user1;
-        });
-        assert.deepEqual(await company.getOwners(), []);
-    });
-    it("7. master should be able to send his share to owners", async() => {
-        const company = await Company.deployed();
-
-        await company.addOwner(user2);
-
-        assert.equal(await company.getShare(user2), 5000000);
-
-        const tx1 = await company.addShare(user2, 1000);
-        truffleAssert.eventEmitted(tx1, "Transfer", (ev) => {
-            return ev.receiver == user2 && ev.amount == 1000
-        });
-
-        const user2Share = await company.getShare(user2);
-
-        assert.equal(user2Share.toString(), 5001000);
-    });
-    it("8. should not be able to use addShare() to transfer share to non-admins(normal-users)", async() => {
-        const company = await Company.deployed();
-
-        await truffleAssert.reverts(
-            company.addShare(user3, 1000),
-        );
-    });
-    it("9. should be able to use giveShare() to transfer share to anyone", async () => {
-        const company = await Company.deployed();
-
-        const tx = await company.giveShare(user3,  1500);
-        truffleAssert.eventEmitted(tx, "Transfer", (ev) => {
-            return ev.receiver == user3 && ev.amount == 1500;
-        });
-
-        assert.equal(await company.getShare(user3), 1500);
-    });
-})
+    assert.equal(await company.getShare(user3), 1500);
+  });
+});
 ```
 
-#### Run test
+## Run test
 
-```bash
-$ truffle test --network mumbai
+```text
+truffle test --network mumbai
 ```
 
-#### Test Result
+## Test Result
 ![Test Result](https://i.ibb.co/Fqs3vjb/Screen-Shot-2021-10-22-at-9-24-47-AM.png)
 
 
-### Conclusion
+# Conclusion
 After reading this tutorial you'll able to :
-- Write Smart Contract with solidity
-- Use truffle library to unit test smart contract
+- Write a basic smart contract with solidity
+- Use the Truffle library to unit test smart contracts
 
-### About the Author
+# About the Author
+David Kim : BlockChain developer with much interest in NFT, DEFI.
 
-[Please add my intro]
+Github : [GitHub](https://github.com/PowerStream3604)
 
-### References
+# References
 - [Truffle](https://www.trufflesuite.com/)
 - [Solidity](https://docs.soliditylang.org/en/v0.8.9/)
 - [Polygon docs](https://docs.matic.network/docs/develop/getting-started)
